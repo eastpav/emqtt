@@ -90,10 +90,10 @@ publish(Msg = #mqtt_message{from = From}) ->
     trace(publish, From, Msg),
     case emqttd_hooks:run('message.publish', [], Msg) of
         {ok, Msg1 = #mqtt_message{topic = Topic}} ->
-            emqttd_pubsub:publish(Topic, Msg1);
+            emqttd_pubsub:publish(Topic, Msg1), ok;
         {stop, Msg1} ->
             lager:info("Stop publishing: ~s", [emqttd_message:format(Msg1)]),
-            ignore
+            {error, stop}
     end.
 
 %% @private

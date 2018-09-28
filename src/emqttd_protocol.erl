@@ -346,6 +346,8 @@ with_puback(Type, Packet = ?PUBLISH_PACKET(_Qos, PacketId),
     case emqttd_session:publish(Session, mount(MountPoint, Msg)) of
         ok ->
             send(?PUBACK_PACKET(Type, PacketId), State);
+        {ok, _} ->
+            send(?PUBACK_PACKET(Type, PacketId), State);
         {error, Error} ->
             ?LOG(error, "PUBLISH ~p error: ~p", [PacketId, Error], State)
     end.

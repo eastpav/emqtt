@@ -196,11 +196,11 @@ subscribe(Session, PacketId, TopicTable) -> %%TODO: the ack function??...
 -spec(publish(pid(), mqtt_message()) -> ok | {error, term()}).
 publish(_Session, Msg = #mqtt_message{qos = ?QOS_0}) ->
     %% Publish QoS0 Directly
-    emqttd_server:publish(Msg), ok;
+    emqttd_server:publish(Msg);
 
 publish(_Session, Msg = #mqtt_message{qos = ?QOS_1}) ->
     %% Publish QoS1 message directly for client will PubAck automatically
-    emqttd_server:publish(Msg), ok;
+    emqttd_server:publish(Msg);
 
 publish(Session, Msg = #mqtt_message{qos = ?QOS_2}) ->
     %% Publish QoS2 to Session
