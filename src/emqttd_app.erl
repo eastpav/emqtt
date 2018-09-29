@@ -45,6 +45,7 @@ start(_Type, _Args) ->
     emqttd_cli:load(),
     register_acl_mod(),
     start_autocluster(),
+    after_autocluster(),
     register(emqttd, self()),
     print_vsn(),
     {ok, Sup}.
@@ -151,7 +152,7 @@ register_acl_mod() ->
 start_autocluster() ->
     ekka:callback(prepare, fun emqttd:shutdown/1),
     ekka:callback(reboot,  fun emqttd:reboot/0),
-    ekka:autocluster(?APP, fun after_autocluster/0).
+    ekka:autocluster(?APP).
 
 after_autocluster() ->
     emqttd_plugins:init(),
