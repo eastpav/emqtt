@@ -37,9 +37,9 @@
 
 -export([plugin_list/1, plugin_unload/2, plugin_load/2]).
 
--export([client_list/4, session_list/4, route_list/3, subscription_list/4, alarm_list/0]).
+-export([client_list/4, client_list_by_name/4, session_list/4, route_list/3, subscription_list/4, alarm_list/0]).
 
--export([client/1, session/1, route/1, subscription/1]).
+-export([client/1, client_by_name/1, session/1, route/1, subscription/1]).
 
 -export([query_table/4, lookup_table/3]).
 
@@ -157,6 +157,14 @@ client_list(Node, Key, PageNo, PageSize) ->
 
 client(ClientId) ->
     lists:flatten([client_list(Node, ClientId, 1, 20) || Node <- ekka_mnesia:running_nodes()]).
+
+client_list_by_name(Node, Username, PageNo, PageSize) when Node =:= node() ->
+    client_list_by_name(Username, PageNo, PageSize);
+client_list_by_name(Node, Username, PageNo, PageSize) ->
+    rpc_call(Node, client_list_by_name, [Node, Username, PageNo, PageSize]).
+
+client_by_name(Username) ->
+    lists:flatten([client_list_by_name(Node, Username, 1, 20) || Node <- ekka_mnesia:running_nodes()]).
 
 %%--------------------------------------------------------
 %% session
@@ -437,6 +445,10 @@ client_list(ClientId, PageNo, PageSize) when ?EMPTY_KEY(ClientId) ->
 
 client_list(ClientId, PageNo, PageSize) ->
     Fun = fun() -> ets:lookup(mqtt_client, ClientId) end,
+    lookup_table(Fun, PageNo, PageSize).
+
+client_list_by_name(Username, PageNo, PageSize) ->
+    Fun = fun() -> ets:match_object(mqtt_client, #mqtt_client{username=Username, _ = '_'}) end,
     lookup_table(Fun, PageNo, PageSize).
 
 session_list(ClientId, PageNo, PageSize) when ?EMPTY_KEY(ClientId) ->
